@@ -8,6 +8,8 @@ p {
 	font-family: Sans-Serif, Arial;
 }
 
+
+/* input-information block */
 #info {
 	display: flex;
 	flex-flow: column;
@@ -18,16 +20,133 @@ p {
 	width: 520px;
 }
 
-#info > div:not(:last-child) {
+#input-section > article{
 	display: flex;
 	flex-flow:  row;
 	align-items: center;
 }
 
-#info > div > p {
+#input-section > article > p {
 	margin-right: 12px;
 }
 
+#input-section > *:not(:first-child) {
+	margin-top: 7px;
+}
+
+input[type=text]{
+	padding: 5px;
+	border: none;
+	background-color: #FCF7F0;
+	transition: 0.2s;
+	width: 100%;
+}
+
+input[type=text]:hover{
+	background-color: rgb(199, 194, 188);
+}
+
+input[type=text]:focus{
+	outline: 0;
+	background-color: #FCF7F0;	
+}
+
+
+/* fixed menu bar */
+#menu-bar-section {
+	position: fixed;
+	padding: 20px;
+	right: 10px;
+	top: 10%;
+
+	background-color: rgb(41, 41, 41);
+	padding: 2px;
+	width: 100px;
+	max-width: 100px;
+}
+
+#calc, #rand{
+	width: inherit;
+	height: 34px;
+	
+	background-color: #555;
+	color: #fff;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	font-size: 16px;
+	transition: 0.5s;
+}
+
+#calc:focus, #rand:focus, #sizer:focus {
+	outline: 0;
+}
+
+#rand {
+	background-color: #4A89AA;
+}
+
+#rand:hover {
+	background-color: #21374B;
+}
+#calc:hover{
+	background-color: #333;
+}
+
+#sizer {
+	width: inherit;
+	text-align: center;
+	height: 34px;
+}
+
+#sizer::-webkit-inner-spin-button{
+	opacity: 1;
+    height: 30px;
+    padding: 4px;
+	cursor: pointer;
+    background: #eee url('http://i.stack.imgur.com/YYySO.png') no-repeat 50% 50%;  
+}
+
+#rand:hover {
+	background-color: #21374B;
+}
+#calc:hover{
+	background-color: #333;
+}
+
+
+/*drawnd-graph block*/
+#graph {
+	border: solid 2px #333;
+	margin: 0px auto;
+	visibility: hidden;
+	height: 115px;
+	background-color: #fff;
+}
+
+#top, #bot{
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	height: 50px;
+}
+
+#top > div > p, #bot > div > p, .taskTCell {
+	color: #555;
+	background-color: #FFFDF1;
+	padding: 5px;
+	border: 1px solid #555;
+
+}
+
+#top > div , #bot > div{
+	display: flex;
+	justify-content: center; /* align horizontal */
+	align-items: center; /* align vertical */
+}
+
+
+/* sequention answer block*/
 #answers {
 	visibility: hidden;
 	width: 300px;
@@ -71,94 +190,7 @@ p {
 }
 
 
-#graph {
-	border: solid 2px #333;
-	margin: 0px auto;
-	visibility: hidden;
-	height: 115px;
-	background-color: #fff;
-}
-
-
-#top, #bot{
-	display: flex;
-	flex-direction: row;
-	width: 100%;
-	height: 50px;
-}
-
-#top > div > p, #bot > div > p, .taskTCell {
-	color: #555;
-	background-color: #FFFDF1;
-	padding: 5px;
-	border: 1px solid #555;
-
-}
-
-#top > div , #bot > div{
-	display: flex;
-	justify-content: center; /* align horizontal */
-	align-items: center; /* align vertical */
-}
-
-#info > *:not(:first-child) {
-	margin-top: 7px;
-}
-
-
-input[type=text]{
-	padding: 5px;
-	border: none;
-	background-color: #FCF7F0;
-	transition: 0.2s;
-	width: 100%;
-}
-
-input[type=text]:hover{
-	background-color: rgb(199, 194, 188);
-}
-
-input[type=text]:focus{
-	outline: 0;
-	background-color: #FCF7F0;	
-}
-
-#calc, #rand, #sizer{
-	background-color: #555;
-	border: none;
-	width: 60%;
-	color: #fff;
-	padding: 10px 27px;
-	text-align: center;
-	text-decoration: none;
-	cursor: pointer;
-	font-size: 16px;
-	transition: 0.5s;
-}
-
-#calc:focus, #rand:focus, #sizer:focus {
-	outline: 0;
-}
-
-#rand {
-	margin-left: 1%;
-	width: 19%;
-	background-color: #4A89AA;
-}
-
-#sizer {
-	background-color: rgb(90, 131, 151);
-	margin-left: 1%;
-	width: 19%;
-}
-
-#rand:hover {
-	background-color: #21374B;
-}
-#calc:hover{
-	background-color: #333;
-}
-
+/* table settings block */
 #tableResults{
 	margin-top: 30px;
 	margin-bottom: 30px;
@@ -191,8 +223,6 @@ table > tr > th:last-child,
 table > tr > th:first-child{
 	border-right: 1px solid #333;
 }
-
-
 
 #nullCell{
 	border-top: 1px solid rgba(0, 0, 0, 0);

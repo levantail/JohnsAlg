@@ -3,89 +3,107 @@ $(function () {
 	'use strict';
 	var DEBUG = true;
 
-	var machineCount = 10;
+	var machineCount = 2;
+
+	var machineData = [];
 
 	initializingContent();
 
 	function initializingContent() {
-		$('#info > div').remove();
+		initInputBlock();
+		initMenuBarBlock();
+	}
+
+	function initInputBlock() {
+		$('#input-section > article').remove();
 		for (var i = 0; i < machineCount; i++) {
-			var elem = '<div><p>#' + (i + 1) + ':</p>'
-				+ '<input class="machineField" type="text" ' +
-				'placeholder="Ender Data.."></div>';
-			$(elem).appendTo('#info');
+			var elem =
+				'<article class = "input-content-' + (i + 1) + '">' +
+				'<p>#' + (i + 1) + ':</p>' +
+				'<input class="machineField" type="text" placeholder="Ender Data..">' +
+				'</article>';
+			$(elem).appendTo('#input-section');
 		}
+	}
+
+	function initMenuBarBlock() {
 		var elem =
-			'<div>' +
 			'<button id = "calc" type="button">Calculate</button>' +
 			'<button id = "rand" type="button">Rand</button>' +
-			/* '<button class = "sizer" min = "1" max = "10" step = "1" type="number"></button>' +
-			'<div class="quantity-nav">' +
-			'<div class="quantity-button quantity-up">+</div>' +
-			'<div class="quantity-button quantity-down">-</div>' +
-			'</div>' + */
-			'<div class="quantity">' +
-			'<input type="number" min="1" max="10" step="1" value="' + machineCount + '" >' +
-			'<div class="quantity-nav"><div class="quantity-button quantity-up">+</div><div class="quantity-button quantity-down">-</div></div>' +
-			'</div>' +
-			'</div>';
+			'<input id = "sizer" min = "1"' +
+			' max = "10" step = "1" type="number"' +
+			' value="' + machineCount + '"></button>';
 
-		$(elem).appendTo('#info');
+		$(elem).appendTo('#menu-bar-section');
 	}
 
 	function calc() {
+		machineData = []; // removing all prev. elements from array
+
+		$('.machineField').each(function () {
+
+			var machElement = $.trim($(this).val());
+
+			if (machElement == "") { return; }
+
+			machElement = machElement.split(' ');
+			machineData.push(machElement);
+		})
+
 		var taskList = [];
 		var taskColorList = [];
 
-		var firstM = $.trim($('#firstM').val());
-		var secondM = $.trim($('#secondM').val());
+		logger("<======alg starts======>");
 
-		if (firstM != "" && secondM != "") {
-			logger("alg starts");
-			var sp_firstM = firstM.split(" ");
-			var sp_secondM = secondM.split(" ");
+		logger(">---calculating by jonAlg---<");
+		jonAlg(taskList);
+		logger(">---drawing graph---<");
+		drawGraph(taskList, taskColorList);
+		logger(">---drawing table---<")
+		drawTable(taskList, taskColorList);
 
-			if (sp_firstM.length == sp_secondM.length) {
-				jonAlg(sp_firstM, sp_secondM, taskList);
-				drawGraph(sp_firstM, sp_secondM, taskList, taskColorList);
-				drawTable(sp_firstM, sp_secondM, taskList, taskColorList);
-			}
-		}
+		logger("<======alg ends======>");
 	}
 
-	function drawGraph(firstM, secondM, taskList, taskColorList) {
+	function drawGraph(taskList, taskColorList) {
 		prepareWorkSpace();
+
+		totalMachineLen = machineData.length;
+		totalElemLen = machineData[0].length;
 
 		var generalIdle = 0;
 		var cm = 50;
 		var elm = "";
 		var generalLength = 0;
-		var firstMLen = 0, secondMLen = 0;
+		var firstMLen = 0, lastMLen = 0;
 		var coef = 0;
 		var firstMEndIddle = 0;
-		var secondMgeneralLen = 0;
+		var lastMgeneralLen = 0;
 
-		for (var i = 0; i < firstM.length; ++i) {
+		for (var i = 0; i < totalMachineLen; i++) {
+			for (var m = 0; m < totalElemLen; m++){
+
+			}
 			firstMLen += parseInt(firstM[i]);
-			secondMLen += parseInt(secondM[i]);
+			lastMLen += parseInt(lastM[i]);
 		}
 
 		firstMEndIddle += firstMLen;
-		secondMgeneralLen += secondMLen;
+		lastMgeneralLen += lastMLen;
 
-		firstMLen += parseInt(secondM[secondM.length - 1]);
-		secondMLen += parseInt(firstM[0]);
+		firstMLen += parseInt(lastM[lastM.length - 1]);
+		lastMLen += parseInt(firstM[0]);
 
 		if (firstMEndIddle < 0) {
-			firstMEndIddle = parseInt(secondM[secondM.length - 1]);
+			firstMEndIddle = parseInt(lastM[lastM.length - 1]);
 		}
 
 		logger("firstMEndIddle: " + firstMEndIddle);
 
 		generalIdle += parseInt(firstM[0]);
 
-		if (secondMLen > firstMLen) {
-			generalLength = secondMLen;
+		if (lastMLen > firstMLen) {
+			generalLength = lastMLen;
 		} else {
 			generalLength = firstMLen;
 		}
@@ -118,15 +136,15 @@ $(function () {
 
 			elm = '<div style="' +
 				'width: ' + (firstM[i] * cm) + 'px;' +
-				'background-color:' + taskColorList[i] + '"><p>' + taskList[i] + '</p>'
+				'background-color:' + taskColorList[i] + '"><p>' + 'Z' + (1 + taskList[i]) + '</p>'
 			'</div>';
 
 			$(elm).appendTo('#top');
 
 			// for bot line
 			elm = '<div style="' +
-				'width: ' + (secondM[i] * cm) + 'px;' +
-				'background-color:' + taskColorList[i] + '"><p>' + taskList[i] + '</p>' +
+				'width: ' + (lastM[i] * cm) + 'px;' +
+				'background-color:' + taskColorList[i] + '"><p>' + 'Z' + (1 + taskList[i]) + '</p>' +
 				'</div>';
 
 			$(elm).appendTo('#bot');
@@ -134,7 +152,7 @@ $(function () {
 			var iddle = 0;
 
 			if (i < firstM.length - 1) {
-				iddle = parseInt(firstM[i + 1]) - (parseInt(secondM[i]) + coef);
+				iddle = parseInt(firstM[i + 1]) - (parseInt(lastM[i]) + coef);
 			}
 
 			if (iddle > 0) {
@@ -158,12 +176,13 @@ $(function () {
 			logger("currentIddle: " + iddle);
 			logger("currentCoef: " + coef + "\n");
 		}
-		secondMgeneralLen += generalIdle;
-		firstMEndIddle = (secondMgeneralLen - firstMEndIddle);
+		lastMgeneralLen += generalIdle;
+		firstMEndIddle = (lastMgeneralLen - firstMEndIddle);
 		if (firstMEndIddle < 0) {
-			firstMEndIddle = parseInt(secondM[secondM.length - 1]);
+			firstMEndIddle = parseInt(lastM[lastM.length - 1]);
 		}
 
+		
 		// For top line: end iddle block for first Machine timeline
 		elm = '<div style="' +
 			'width: ' + (firstMEndIddle * cm) + 'px;' +
@@ -176,7 +195,15 @@ $(function () {
 
 		$(elm).appendTo('#top');
 		//
-		$('<p>' + taskList.join(", ") + '</p>').appendTo('#sequence');
+		var seqTemp = [];
+
+		for (var i = 0; i < taskList.length; i++) {
+			seqTemp[i] = 'Z' + (1 + taskList[i]);
+		}
+		logger(taskList);
+		logger(seqTemp);
+
+		$('<p>' + seqTemp.join(", ") + '</p>').appendTo('#sequence');
 		$('<p>' + generalLength.toString() + '</p>').appendTo('#work-time');
 		$('<p>' + generalIdle.toString() + '</p>').appendTo('#idle');
 
@@ -184,7 +211,7 @@ $(function () {
 		logger("coef: " + coef);
 	}
 
-	function drawTable(firstM, secondM, taskList, taskColorList) {
+	function drawTable(taskList, taskColorList) {
 		cleartable();
 
 		var coef = 0;
@@ -217,7 +244,7 @@ $(function () {
 			var startT2 = 0;
 			startT2 += generalIdle;
 			for (var m = 0; m < i; m++) {
-				startT2 += parseInt(secondM[m]);
+				startT2 += parseInt(lastM[m]);
 			}
 			//////////////////////
 
@@ -226,14 +253,14 @@ $(function () {
 			var stopT2 = 0;
 			stopT2 += generalIdle;
 			for (var m = 0; m < i + 1; m++) {
-				stopT2 += parseInt(secondM[m]);
+				stopT2 += parseInt(lastM[m]);
 			}
 			//////////////////////
 
 			var iddle = 0;
 
 			if (i < firstM.length - 1) {
-				iddle = parseInt(firstM[i + 1]) - (parseInt(secondM[i]) + coef);
+				iddle = parseInt(firstM[i + 1]) - (parseInt(lastM[i]) + coef);
 				logger("iddle: " + iddle);
 			}
 
@@ -289,7 +316,7 @@ $(function () {
 					var cellColorStyle = ' style = "background-color: ' +
 						taskColorList[td] + ';" ';
 					$('<td' + cellColorStyle + '>' +
-						'<p class = "taskTCell">' + taskList[td] + '</p>' +
+						'<p class = "taskTCell">' + 'Z' + (1 + taskList[td]) + '</p>' +
 						'</td>').appendTo(tdItem);
 					continue;
 				}
@@ -342,18 +369,52 @@ $(function () {
 		//
 	}
 
-	function jonAlg(firstM, secondM, taskList) {
-		var generalLength = firstM.length;
-		var taskListSorted = [];
-		var firstMachine = [];
-		var secondMachine = [];
+	function prepareValuesToAlg(firstM, lastM) {
+		var generalLength = machineData[0].length;
+		var machineAmount = machineData.length;
 
 
 		for (var i = 0; i < generalLength; i++) {
-			firstMachine[i] = -1;
-			secondMachine[i] = -1;
+			firstM[i] = 0;
+			lastM[i] = 0;
+		}
 
-			taskList[i] = "Z" + (i + 1);
+		for (var i = 0; i < Math.ceil(machineAmount / 2); i++) {
+			for (var m = 0; m < generalLength; m++) {
+				firstM[m] += parseInt(machineData[i][m]);
+			}
+		}
+		for (var i = Math.ceil(machineAmount / 2); i < machineAmount; i++) {
+			for (var m = 0; m < generalLength; m++) {
+				lastM[m] += parseInt(machineData[i][m]);
+			}
+		}
+
+	}
+
+	function jonAlg(taskList) {
+
+		var generalLength = machineData[0].length;
+		logger(generalLength);
+
+		var firstM = new Array(generalLength);
+		var lastM = new Array(generalLength);
+
+		prepareValuesToAlg(firstM, lastM);
+
+		logger("GROUPs TO CALC:");
+		logger(firstM);
+		logger(lastM);
+
+		var taskListSorted = [];
+		var firstMachine = [];
+		var lastMachine = [];
+
+		for (var i = 0; i < generalLength; i++) {
+			firstMachine[i] = -1;
+			lastMachine[i] = -1;
+
+			taskList[i] = i;
 		}
 
 		for (var i = 0; i < generalLength; ++i) {
@@ -368,22 +429,22 @@ $(function () {
 					fVal = firstM[j];
 					fIndex = j;
 				}
-				// for second Machine
-				if (sVal > secondM[j] && secondM[j] != -1) {
-					sVal = secondM[j];
+				// for last Machine
+				if (sVal > lastM[j] && lastM[j] != -1) {
+					sVal = lastM[j];
 					sIndex = j;
 				}
 			}
 			// compare the values
 			if (fVal > sVal) {
 				for (var r = generalLength - 1; 0 < r + 1; --r) {
-					if (secondMachine[r] == -1) {
+					if (lastMachine[r] == -1) {
 						firstMachine[r] = firstM[sIndex];
-						secondMachine[r] = secondM[sIndex];
+						lastMachine[r] = lastM[sIndex];
 						taskListSorted[r] = taskList[sIndex]
 
 						firstM[sIndex] = -1;
-						secondM[sIndex] = -1;
+						lastM[sIndex] = -1;
 						break;
 					}
 				}
@@ -391,29 +452,38 @@ $(function () {
 				for (var r = 0; r < generalLength; ++r) {
 					if (firstMachine[r] == -1) {
 						firstMachine[r] = firstM[fIndex];
-						secondMachine[r] = secondM[fIndex];
+						lastMachine[r] = lastM[fIndex];
 						taskListSorted[r] = taskList[fIndex]
 
 						firstM[fIndex] = -1;
-						secondM[fIndex] = -1;
+						lastM[fIndex] = -1;
 						break;
 					}
 				}
 			}
 		}
+		taskList = taskListSorted.slice();
 
-		for (var i = 0; i < generalLength; ++i) {
-			firstM[i] = firstMachine[i];
-			secondM[i] = secondMachine[i];
-			taskList[i] = taskListSorted[i];
+		for (var i = 0; i < machineData.length; i++) {
+			var newMachine = [];
+			var oldMachine = machineData[i].slice();
+
+			for (var m = 0; m < machineData[i].length; m++) {
+				newMachine[m] = parseInt(oldMachine[taskList[m]]);
+			}
+			machineData[i] = newMachine.slice();
+			logger("SEQ IS ");
+			logger(machineData[i]);
 		}
 
+
 		logger("FirstM  res: " + firstM);
-		logger("SecondM res: " + secondM);
+		logger("LastM res: " + lastM);
 		logger("Sequence: " + taskList.join(", "));
 	}
 
-	// EVENT DEFITION BLOCK
+	// EVENTS DEFITION BLOCK
+
 	$('#rand').click(function () {
 		var taskCount = randomIntFromInterval(2, 7);
 
@@ -428,37 +498,25 @@ $(function () {
 		})
 	})
 
+	$('#sizer').on('input', function () {
 
-	$('.quantity > input').on('input', function () {
-		var temp = $('.quantity > input').val();
-		if (machineCount > 0 && machineCount < 11 && temp != '') {
-			machineCount = temp;
+		var temp = $.trim($('#sizer').val());
+
+		if (temp > 0 && temp < 11 && temp != '') {
+
+			machineCount = parseInt(temp);
+			initInputBlock();
 			logger(machineCount);
-
+		} else {
+			logger("Machine: out of range.");
 		}
 
 	})
 
-	$('.quantity > input').on('change', function () {
-		var temp = $('.quantity > input').val();
-
-		if (machineCount > 0 && machineCount < 11 && temp != '') {
-			machineCount = temp;
-			logger(machineCount);
-
-		}
-
-	})
-
-	$('#secondM').keydown(function (e) {
-		if (e.keyCode === 13) {
-			calc();
-		}
-	})
-
-	$('#btn').click(function () {
+	$('#calc').click(function () {
 		calc();
 	})
+
 	// EVENT DEFITION BLOCK END
 
 	function logger(param) {
