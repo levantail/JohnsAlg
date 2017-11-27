@@ -124,14 +124,14 @@ input[type=text]:focus{
 	background-color: #fff;
 }
 
-#top, #bot{
+#seq-lines > div{
 	display: flex;
 	flex-direction: row;
 	width: 100%;
 	height: 50px;
 }
 
-#top > div > p, #bot > div > p, .taskTCell {
+#seq-lines > div > div > p, .taskTCell {
 	color: #555;
 	background-color: #FFFDF1;
 	padding: 5px;
@@ -139,7 +139,7 @@ input[type=text]:focus{
 
 }
 
-#top > div , #bot > div{
+#seq-lines > div > div{
 	display: flex;
 	justify-content: center; /* align horizontal */
 	align-items: center; /* align vertical */
