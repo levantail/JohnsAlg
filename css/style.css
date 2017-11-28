@@ -3,6 +3,7 @@
 }
 body {
 	background-color: #FCF4E8;
+	overflow: auto;
 }
 p {
 	font-family: Sans-Serif, Arial;
@@ -122,6 +123,9 @@ input[type=text]:focus{
 	visibility: hidden;
 	height: 115px;
 	background-color: #fff;
+}
+#seq-lines {
+	background-image: repeating-linear-gradient(-45deg,transparent,transparent 5px,#555 5px,#555 10px);
 }
 
 #seq-lines > div{

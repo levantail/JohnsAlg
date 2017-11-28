@@ -3,9 +3,12 @@ $(function () {
 	'use strict';
 	var DEBUG = true;
 
-	var machineCount = 2;
+	var machineCount = 2; // start value
 
 	var machineData = [];
+	var taskList = [];
+	var taskColorList = [];
+
 
 	initializingContent();
 
@@ -52,32 +55,23 @@ $(function () {
 			machineData.push(machElement);
 		})
 
-		var taskList = [];
 
-		var taskColorList = new Array(new Array(), new Array());
 
 		logger("<======alg starts======>");
 
 		logger(">---calculating by jonAlg---<");
-		jonAlg(taskList);
-		logger(">---drawing graph---<");
-		drawGraph(taskList, taskColorList);
-		logger(">---drawing table---<")
-		drawTable(taskList, taskColorList);
-
+		jonAlg();
+		logger(">---drawing graph---<" + taskList.join(','));
+		drawGraph();
 		logger("<======alg ends======>");
 	}
 
 	function drawIddleBlock(iddleLenght, blockWidth, destin) {
-		var elm = '<div class="row-block" style="' +
+		var elm = '<div class="iddle-block" style="' +
 			'width: ' + (iddleLenght * blockWidth) + 'px;' +
-			'background-image: repeating-linear-gradient(-45deg,' +
-			'transparent,' +
-			'transparent 5px,' +
-			'#555 5px,' +
-			'#555 10px); ">' +
+			'">' +
 			'</div>';
-		$(elm).appendTo(destin);
+		$(elm).appendTo('.' + destin);
 	}
 
 	function drawBlock(blockLenght, blockColor, blockWidth, taskName, destin) {
@@ -96,35 +90,43 @@ $(function () {
 		$(elem).appendTo('#seq-lines');
 	}
 
-	function drawGraph(taskList, taskColorList) {
+	function drawGraph() {
 		prepareWorkSpace();
 
-		var totalElemLen = machineData[0].length;
-
-		var generalIdle = 0;
+		taskColorList = [];
 
 		var elm = "";
 		var generalLength = 0;
 		var firstMLen = 0,
 			lastMLen = 0;
-		var coef = 0;
 		var firstMEndIddle = 0;
 		var lastMgeneralLen = 0;
 
 		var blockHeight = 50;
 		var blockWidth = 50;
 
-
 		var startIddle = 0;
+
+
 
 
 
 		$('#seq-lines').css('height', (machineCount * blockHeight));
 		$('#graph').css('height', (machineCount * blockHeight + 15));
 
-		var mixPrevMach =[];
-		for (var i = 0; i < machineCount; i++) {
+		var mixPrevMach = new Array();
+		var iddleMach = new Array();
 
+
+		for (var i = 0; i < machineCount; i++) {//////////////////////////
+			var coef = 0;
+
+			var mixPrevMachTemp = machineData[i].slice();
+			var iddleMachTemp = [];
+
+			for (var k = 0; k < machineData[i].length; k++) {
+				iddleMachTemp.push(0);
+			}
 
 			//creating row-block
 			var machineName = 'row-block-' + (i + 1);
@@ -132,167 +134,163 @@ $(function () {
 
 			// for first block iddle at every new machines (ex. first one)
 			if (startIddle != 0) {
+				logger("FIREUP");
 				drawIddleBlock(startIddle, blockWidth, machineName);
 			}
 			//
+			for (var m = 0; m < machineData[0].length; m++) {//====
 
-			for (var m = 0; m < totalElemLen; m++) {
-				taskColorList[i][m] = getRandomColor();
+				if (taskColorList[m] == undefined) {
+					taskColorList.push(getRandomColor());
+				}
+
+				logger(machineCount);
+				logger(taskColorList);
 
 				if (startIddle == 0) {
 					drawBlock(
 						machineData[i][m],
-						taskColorList[i][m],
+						taskColorList[m],
 						blockWidth,
 						taskList[m],
 						machineName);
 					continue;
 				}
 
+				drawBlock(
+					machineData[i][m],
+					taskColorList[m],
+					blockWidth,
+					taskList[m],
+					machineName);
 
-			}
 
+				var iddle = 0;
+
+				if (m < machineData[i - 1].length - 1) {
+					iddle = parseInt(mixPrevMach[m + 1]) - (parseInt(machineData[i][m]) + coef);
+				}
+
+				if (iddle > 0) {
+					logger('iddle: ' + iddle);
+					drawIddleBlock(iddle, blockWidth, machineName);
+					if (m < machineData[i].length - 1) {
+						mixPrevMachTemp[m + 1] += iddle;
+					}
+					iddleMachTemp[m] = iddle;
+					coef = 0;
+				} else if (iddle < 0) {
+					coef = (-1 * iddle);
+				} else if (iddle == 0) {
+					coef = 0;
+				}
+
+			}//====
+
+			mixPrevMach = mixPrevMachTemp.slice();
+
+			iddleMach = iddleMachTemp.slice();
 			startIddle += machineData[i][0];
-		}
+			logger('iddleMachTemp: ');
+			logger(iddleMachTemp);
+			logger('startIddle:');
+			logger(startIddle);
 
+
+
+
+		}////////////////////////////
+
+		startIddle -= machineData[machineCount - 1][0];
+
+		for (var k = 0; k < machineData[0].length; k++) {
+			generalLength += iddleMach[k] + machineData[machineCount - 1][k];
+		}
+		generalLength += startIddle;
+
+		logger(generalLength);
 		// printing ruller
 		for (var i = 0; i < generalLength; ++i) {
-			elm = '<div style="width: ' + blockWidth +
+			elm = '<div style="width: ' + (blockWidth - 1) +
 				'px; background-color: #333 "><p>' + (i + 1) + '</p></div>';
 			$(elm).appendTo('#counters');
 		}
 
-
-		logger('//===================================//');
-		firstMLen += parseInt(firstM[i]);
-		lastMLen += parseInt(lastM[i]);
+		$('#graph').css('width', generalLength * blockWidth);
 
 
-		firstMEndIddle += firstMLen;
-		lastMgeneralLen += lastMLen;
-
-		firstMLen += parseInt(lastM[lastM.length - 1]);
-		lastMLen += parseInt(firstM[0]);
-
-		if (firstMEndIddle < 0) {
-			firstMEndIddle = parseInt(lastM[lastM.length - 1]);
-		}
-
-		logger("firstMEndIddle: " + firstMEndIddle);
-
-		generalIdle += parseInt(firstM[0]);
-
-		if (lastMLen > firstMLen) {
-			generalLength = lastMLen;
-		} else {
-			generalLength = firstMLen;
-		}
-
-		logger("genLen: " + generalLength);
-
-		for (var i = 0; i < generalLength; ++i) {
-			elm = '<div style="width: ' + blockWidth +
-				'px; background-color: #333 "><p>' + (i + 1) + '</p></div>';
-			$(elm).appendTo('#counters');
-		}
-
-		$('#graph').css('width', (generalLength * blockWidth));
-
-		//for bot line first iddle
-		elm = '<div style="' +
-			'width: ' + (firstM[0] * blockWidth) + 'px;' +
-			'background-image: repeating-linear-gradient(-45deg,' +
-			'transparent,' +
-			'transparent 5px,' +
-			'#555 5px,' +
-			'#555 10px); ">' +
-			'</div>';
-		$(elm).appendTo('#bot');
-		//
-
-		for (var i = 0; i < firstM.length; ++i) {
-			//for top line
-			taskColorList[i] = getRandomColor();
-
-			elm = '<div style="' +
-				'width: ' + (firstM[i] * blockWidth) + 'px;' +
-				'background-color:' + taskColorList[i] + '"><p>' + 'Z' + (1 + taskList[i]) + '</p>'
-			'</div>';
-
-			$(elm).appendTo('#top');
-
-			// for bot line
-			elm = '<div style="' +
-				'width: ' + (lastM[i] * blockWidth) + 'px;' +
-				'background-color:' + taskColorList[i] + '"><p>' + 'Z' + (1 + taskList[i]) + '</p>' +
-				'</div>';
-
-			$(elm).appendTo('#bot');
-
-			var iddle = 0;
-
-			if (i < firstM.length - 1) {
-				iddle = parseInt(firstM[i + 1]) - (parseInt(lastM[i]) + coef);
-			}
-
-			if (iddle > 0) {
-				elm = '<div style="' +
-					'width: ' + (iddle * blockWidth) + 'px;' +
-					'background-image: repeating-linear-gradient(-45deg,' +
-					'transparent,' +
-					'transparent 5px,' +
-					'#555 5px,' +
-					'#555 10px); ">' +
-					'</div>';
-
-				$(elm).appendTo('#bot');
-				coef = 0;
-				generalIdle += iddle;
-			} else if (iddle < 0) {
-				coef = (-1 * iddle);
-			} else if (iddle == 0) {
-				coef = 0;
-			}
-			logger("currentIddle: " + iddle);
-			logger("currentCoef: " + coef + "\n");
-		}
-		lastMgeneralLen += generalIdle;
-		firstMEndIddle = (lastMgeneralLen - firstMEndIddle);
-		if (firstMEndIddle < 0) {
-			firstMEndIddle = parseInt(lastM[lastM.length - 1]);
-		}
-
-
-		// For top line: end iddle block for first Machine timeline
-		elm = '<div style="' +
-			'width: ' + (firstMEndIddle * blockWidth) + 'px;' +
-			'background-image: repeating-linear-gradient(-45deg,' +
-			'transparent,' +
-			'transparent 5px,' +
-			'#555 5px,' +
-			'#555 10px); ">' +
-			'</div>';
-
-		$(elm).appendTo('#top');
-		//
 		var seqTemp = [];
-
+		var lastMachineIddleTime = startIddle;
 		for (var i = 0; i < taskList.length; i++) {
 			seqTemp[i] = 'Z' + (1 + taskList[i]);
+			lastMachineIddleTime += iddleMach[i];
 		}
 		logger(taskList);
 		logger(seqTemp);
 
 		$('<p>' + seqTemp.join(", ") + '</p>').appendTo('#sequence');
 		$('<p>' + generalLength.toString() + '</p>').appendTo('#work-time');
-		$('<p>' + generalIdle.toString() + '</p>').appendTo('#idle');
+		$('<p>' + lastMachineIddleTime.toString() + '</p>').appendTo('#idle');
 
 		logger("Sequence: " + taskList.join(", "));
 		logger("coef: " + coef);
+
+		logger('//===========-Table creating-==========\\');
+
+		// TABLE HEADER CREATION
+		$('<table></table>').appendTo('#tableResults');
+
+		$('<tr id = "tableHeader">').appendTo('#tableResults > table');
+		for (var i = 0, m = 0; i < machineCount * 2 + 1; ++i) {
+			if (i == 0) {
+				$('<th id = "nullCell"></th>').appendTo('#tableHeader');
+				continue;
+			}
+
+			if (i % 2) {
+				var elem = "M" + (m + 1) + " start";
+			} else {
+				var elem = "M" + (m + 1) + " stop";
+				m++;
+			}
+			$('<th>' + elem + '</th>').appendTo('#tableHeader');
+		}
+		$('</tr>').appendTo('#tableResults > table');
+		// TABLE HEADER CREATION END'S
+
+		// MAIN BODY TABLE CREATION
+		for (var i = 0; i < taskList.length; ++i) {
+
+			var tdItem = "#tdItem_" + i;
+			$('<tr id = "tdItem_' + i + '"></tr>').appendTo('#tableResults > table');
+
+			for (var m = 0; m < machineCount + 1; ++m) {
+				if (m == 0) {
+
+					var elem =
+						'<td style = "background-color: ' +
+						taskColorList[i] + ';" >' +
+						'<p class = "taskTCell">' +
+						'Z' + (1 + taskList[i]) +
+						'</p>' +
+						'</td>';
+
+					$(elem).appendTo(tdItem);
+					continue;
+				}
+
+				var mStart = i;
+				var mStop = i;
+
+				$('<td>' + mStart + 'S</td>').appendTo(tdItem);
+				$('<td>' + mStop + 'T</td>').appendTo(tdItem);
+
+			}
+		}
+		//MAIN BODY TABLE CREATION END'S 
 	}
 
-	function drawTable(taskList, taskColorList) {
-		cleartable();
+	function drawTable() {
 
 		var coef = 0;
 		var generalIdle = parseInt(firstM[0]);
@@ -357,11 +355,6 @@ $(function () {
 			m2Stop.push(stopT2);
 		}
 
-		logger("m1Start: " + m1Start);
-		logger("m1Stop: " + m1Stop);
-		logger("m2Start: " + m2Start);
-		logger("m2Stop: " + m2Stop);
-
 
 		$('<table>').appendTo('#tableResults');
 		var tableLength = firstM.length;
@@ -386,18 +379,18 @@ $(function () {
 		// TABLE HEADER CREATION END'S
 
 		// MAIN BODY TABLE CREATION
-		for (var td = 0, r = 0; td < taskList.length; ++td, r++) {
+		for (var i = 0, r = 0; i < taskList.length; ++i, r++) {
 
-			var tdItem = "#tdItem_" + td;
-			$('<tr id = "tdItem_' + td + '">').appendTo('#tableResults > table');
+			var iItem = "#iItem_" + i;
+			$('<tr id = "iItem_' + i + '">').appendTo('#tableResults > table');
 
 			for (var i = 0; i < 2 + 1; ++i) {
 				if (i == 0) {
 					var cellColorStyle = ' style = "background-color: ' +
-						taskColorList[td] + ';" ';
-					$('<td' + cellColorStyle + '>' +
-						'<p class = "taskTCell">' + 'Z' + (1 + taskList[td]) + '</p>' +
-						'</td>').appendTo(tdItem);
+						taskColorList[i] + ';" ';
+					$('<i' + cellColorStyle + '>' +
+						'<p class = "taskTCell">' + 'Z' + (1 + taskList[i]) + '</p>' +
+						'</i>').appendTo(iItem);
 					continue;
 				}
 
@@ -408,20 +401,19 @@ $(function () {
 					var elem1 = m2Start[r].toString();
 					var elem2 = m2Stop[r].toString();
 				}
-				$('<td>' + elem1 + '</td>').appendTo(tdItem);
-				$('<td>' + elem2 + '</td>').appendTo(tdItem);
+				$('<i>' + elem1 + '</i>').appendTo(iItem);
+				$('<i>' + elem2 + '</i>').appendTo(iItem);
 
 			}
 			$('</tr>').appendTo('#tableResults > table');
 		}
+		//MAIN BODY TABLE CREATION END'S
 
 
 		$('</table>').appendTo('#tableResults');
 	}
 
-	function cleartable() {
-		$('#tableResults > table').remove();
-	}
+
 
 	function randomIntFromInterval(min, max) {
 		return Math.floor(Math.random() * (max - min + 1) + min);
@@ -445,7 +437,8 @@ $(function () {
 		$('#idle > p').remove();
 		$('#work-time > p').remove();
 		$('#sequence > p').remove();
-		//
+		//table clearing
+		$('#tableResults > table').remove();
 	}
 
 	function prepareValuesToAlg(firstM, lastM) {
@@ -472,7 +465,7 @@ $(function () {
 
 	}
 
-	function jonAlg(taskList) {
+	function jonAlg() {
 
 		var generalLength = machineData[0].length;
 		logger(generalLength);
@@ -556,13 +549,29 @@ $(function () {
 			logger(machineData[i]);
 		}
 
-
 		logger("FirstM  res: " + firstM);
 		logger("LastM res: " + lastM);
 		logger("Sequence: " + taskList.join(", "));
 	}
 
 	// EVENTS DEFITION BLOCK
+
+	$('#info').on('wheel', function (e) {
+
+		if (e.originalEvent.deltaY < 0) {
+			var temp = parseInt($('#sizer').val()) - 1;
+			if (temp < 11 && temp > 0) {
+				$('#sizer').val(temp);
+			}
+		}
+		if (e.originalEvent.deltaY > 0) {
+			var temp = parseInt($('#sizer').val()) + 1;
+			if (temp < 11 && temp > 0) {
+				$('#sizer').val(temp);
+			}
+		}
+		$('#sizer').trigger('input');
+	})
 
 	$('#rand').click(function () {
 		var taskCount = randomIntFromInterval(2, 7);
