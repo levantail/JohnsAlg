@@ -117,6 +117,8 @@ $(function () {
 		var mixPrevMach = new Array();
 		var iddleMach = new Array();
 
+		var machineIddleData = [];
+		var machineStartIddle = [];
 
 		for (var i = 0; i < machineCount; i++) {//////////////////////////
 			var coef = 0;
@@ -189,7 +191,11 @@ $(function () {
 
 			mixPrevMach = mixPrevMachTemp.slice();
 
+			machineIddleData.push(iddleMachTemp);
+			machineStartIddle.push(startIddle);
+
 			iddleMach = iddleMachTemp.slice();
+
 			startIddle += machineData[i][0];
 			logger('iddleMachTemp: ');
 			logger(iddleMachTemp);
@@ -235,6 +241,7 @@ $(function () {
 		logger("Sequence: " + taskList.join(", "));
 		logger("coef: " + coef);
 
+		logger(iddleMach)
 		logger('//===========-Table creating-==========\\');
 
 		// TABLE HEADER CREATION
@@ -264,27 +271,27 @@ $(function () {
 			var tdItem = "#tdItem_" + i;
 			$('<tr id = "tdItem_' + i + '"></tr>').appendTo('#tableResults > table');
 
-			for (var m = 0; m < machineCount + 1; ++m) {
-				if (m == 0) {
+			var elem =
+				'<td style = "background-color: ' +
+				taskColorList[i] + ';" >' +
+				'<p class = "taskTCell">' +
+				'Z' + (1 + taskList[i]) +
+				'</p>' +
+				'</td>';
 
-					var elem =
-						'<td style = "background-color: ' +
-						taskColorList[i] + ';" >' +
-						'<p class = "taskTCell">' +
-						'Z' + (1 + taskList[i]) +
-						'</p>' +
-						'</td>';
+			$(elem).appendTo(tdItem);
+			for (var m = 0; m < machineCount; ++m) {
+				var mStop = machineStartIddle[m];
+				var mStart = 0;
+				
 
-					$(elem).appendTo(tdItem);
-					continue;
+				for (var r = 0; r < i + 1; r++) {
+					mStop += machineData[m][r] + machineIddleData[m][r];
 				}
-
-				var mStart = i;
-				var mStop = i;
-
-				$('<td>' + mStart + 'S</td>').appendTo(tdItem);
-				$('<td>' + mStop + 'T</td>').appendTo(tdItem);
-
+				mStop -= machineIddleData[m][i];
+				mStart = mStop - machineData[m][i];
+				$('<td>' + mStart + '</td>').appendTo(tdItem);
+				$('<td>' + mStop + '</td>').appendTo(tdItem);
 			}
 		}
 		//MAIN BODY TABLE CREATION END'S 
