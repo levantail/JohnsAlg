@@ -1,7 +1,7 @@
 //  'use strict';
 $(function () {
 	'use strict';
-	var DEBUG = true;
+	var DEBUG = false;
 
 	var machineCount = 2; // start value
 
@@ -61,7 +61,7 @@ $(function () {
 
 		logger(">---calculating by jonAlg---<");
 		jonAlg();
-		logger(">---drawing graph---<" + taskList.join(','));
+		logger(">---drawing graph---<");
 		drawGraph();
 		logger("<======alg ends======>");
 	}
@@ -106,10 +106,6 @@ $(function () {
 		var blockWidth = 50;
 
 		var startIddle = 0;
-
-
-
-
 
 		$('#seq-lines').css('height', (machineCount * blockHeight));
 		$('#graph').css('height', (machineCount * blockHeight + 15));
@@ -202,9 +198,6 @@ $(function () {
 			logger('startIddle:');
 			logger(startIddle);
 
-
-
-
 		}////////////////////////////
 
 		startIddle -= machineData[machineCount - 1][0];
@@ -296,131 +289,6 @@ $(function () {
 		}
 		//MAIN BODY TABLE CREATION END'S 
 	}
-
-	function drawTable() {
-
-		var coef = 0;
-		var generalIdle = parseInt(firstM[0]);
-
-		var m1Start = [];
-		var m1Stop = [];
-		var m2Start = [];
-		var m2Stop = [];
-
-		for (var i = 0; i < firstM.length; ++i) {
-
-			// FOR START POSITION OF 1ST MACHINE
-			var startT1 = 0;
-			for (var m = 0; m < i; m++) {
-				startT1 += parseInt(firstM[m]);
-			}
-			m1Start.push(startT1);
-			//////////////////////
-
-			// FOR STOP POSITION OF 1ST MACHINE
-			var stoptT1 = 0;
-			for (var m = 0; m < i + 1; m++) {
-				stoptT1 += parseInt(firstM[m]);
-			}
-			m1Stop.push(stoptT1);
-			//////////////////////
-
-			//FOR START POSITION OF 2ST MACHINE
-			var startT2 = 0;
-			startT2 += generalIdle;
-			for (var m = 0; m < i; m++) {
-				startT2 += parseInt(lastM[m]);
-			}
-			//////////////////////
-
-
-			//FOR STOP POSITION OF 2ST MACHINE
-			var stopT2 = 0;
-			stopT2 += generalIdle;
-			for (var m = 0; m < i + 1; m++) {
-				stopT2 += parseInt(lastM[m]);
-			}
-			//////////////////////
-
-			var iddle = 0;
-
-			if (i < firstM.length - 1) {
-				iddle = parseInt(firstM[i + 1]) - (parseInt(lastM[i]) + coef);
-				logger("iddle: " + iddle);
-			}
-
-			if (iddle > 0) {
-				generalIdle += parseInt(iddle);
-				coef = 0;
-			} else if (iddle < 0) {
-				coef = (-1 * iddle);
-			} else if (iddle == 0) {
-				coef = 0;
-			}
-
-			m2Start.push(startT2);
-			m2Stop.push(stopT2);
-		}
-
-
-		$('<table>').appendTo('#tableResults');
-		var tableLength = firstM.length;
-
-		// TABLE HEADER CREATION
-		$('<tr id = "tableHeader">').appendTo('#tableResults > table');
-		for (var i = 0, m = 0; i < 2 * 2 + 1; ++i) {
-			if (i == 0) {
-				$('<th id = "nullCell"></th>').appendTo('#tableHeader');
-				continue;
-			}
-
-			if (i % 2) {
-				var elem = "M" + (m + 1) + " start";
-			} else {
-				var elem = "M" + (m + 1) + " stop";
-				m++;
-			}
-			$('<th>' + elem + '</th>').appendTo('#tableHeader');
-		}
-		$('</tr>').appendTo('#tableResults > table');
-		// TABLE HEADER CREATION END'S
-
-		// MAIN BODY TABLE CREATION
-		for (var i = 0, r = 0; i < taskList.length; ++i, r++) {
-
-			var iItem = "#iItem_" + i;
-			$('<tr id = "iItem_' + i + '">').appendTo('#tableResults > table');
-
-			for (var i = 0; i < 2 + 1; ++i) {
-				if (i == 0) {
-					var cellColorStyle = ' style = "background-color: ' +
-						taskColorList[i] + ';" ';
-					$('<i' + cellColorStyle + '>' +
-						'<p class = "taskTCell">' + 'Z' + (1 + taskList[i]) + '</p>' +
-						'</i>').appendTo(iItem);
-					continue;
-				}
-
-				if (i % 2) {
-					var elem1 = m1Start[r].toString();
-					var elem2 = m1Stop[r].toString();
-				} else {
-					var elem1 = m2Start[r].toString();
-					var elem2 = m2Stop[r].toString();
-				}
-				$('<i>' + elem1 + '</i>').appendTo(iItem);
-				$('<i>' + elem2 + '</i>').appendTo(iItem);
-
-			}
-			$('</tr>').appendTo('#tableResults > table');
-		}
-		//MAIN BODY TABLE CREATION END'S
-
-
-		$('</table>').appendTo('#tableResults');
-	}
-
-
 
 	function randomIntFromInterval(min, max) {
 		return Math.floor(Math.random() * (max - min + 1) + min);
