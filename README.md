@@ -9,5 +9,6 @@ How to use:
 3. Fulfill empty fields "Enter data" with integers sequence divided by space (or Rand it) where each of them represents some task and time which needed to complete this task. 
 4. Press Calculate button on right top menu.
 
+Notice: 
 - First integer in sequence will be later named in graphical representation as Z1, second - Z2 and etc.
 - Each input field represents itself a single "machine".
