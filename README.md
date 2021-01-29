@@ -1,4 +1,4 @@
-# JohnsAlg
+# JohnsAlg (OUT OF DATE)
 
 Here is implementation of Johnson algorithm up to 10 machines.
 
